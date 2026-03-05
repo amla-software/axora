@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSReD — Center for Software Research &amp; Development</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Mulish:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:     #0d1b2e;
+      --navy-mid: #162540;
+      --navy-lt:  #1e3354;
+      --blue:     #1a5fa8;
+      --blue-lt:  #2b7fd4;
+      --sky:      #e8f2fc;
+      --white:    #ffffff;
+      --off:      #f7f9fc;
+      --text:     #1a2535;
+      --muted:    #5e7290;
+      --border:   #d8e3ef;
+      --gold:     #c4922a;
+      --gold-lt:  #e8b84b;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--white); color: var(--text); font-family: 'Mulish', sans-serif; font-size: 15px; line-height: 1.7; overflow-x: hidden; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(255,255,255,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 2.5rem; height: 72px; }
+    .nav-brand { display: flex; align-items: center; gap: 0.85rem; text-decoration: none; }
+    .nav-brand-mark { width: 40px; height: 40px; background: var(--navy); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .nav-brand-mark svg { width: 22px; height: 22px; }
+    .nav-brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .nav-brand-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; }
+    .nav-brand-name span { color: var(--blue); }
+    .nav-brand-sub { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+    .nav-links { display: flex; align-items: center; gap: 0.25rem; list-style: none; }
+    .nav-links a { font-size: 0.8rem; font-weight: 500; letter-spacing: 0.04em; color: var(--muted); text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 4px; transition: color 0.2s, background 0.2s; }
+    .nav-links a:hover { color: var(--navy); background: var(--sky); }
+    .nav-links a.active { color: var(--navy); }
+    .nav-cta { background: var(--navy) !important; color: var(--white) !important; padding: 0.5rem 1.3rem !important; border-radius: 4px !important; font-weight: 600 !important; transition: background 0.2s !important; }
+    .nav-cta:hover { background: var(--blue) !important; }
+    .nav-toggle { display: none; background: none; border: 1px solid var(--border); padding: 0.35rem 0.6rem; cursor: pointer; border-radius: 4px; font-size: 1.1rem; color: var(--navy); }
+    @media(max-width:860px){ .nav-toggle{display:block;} .nav-links{display:none;} }
+    #mobile-menu { display: none; flex-direction: column; background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2rem; gap: 0.6rem; position: fixed; top: 72px; left: 0; right: 0; z-index: 199; }
+    #mobile-menu.open { display: flex; }
+    #mobile-menu a { font-size: 0.88rem; font-weight: 500; color: var(--muted); text-decoration: none; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+
+    /* UTILS */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2.5rem; }
+    .section-pad { padding: 6rem 0; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blue); margin-bottom: 1rem; }
+    .eyebrow::before { content: ''; width: 28px; height: 2px; background: var(--gold); }
+    .section-heading { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 700; line-height: 1.2; color: var(--navy); letter-spacing: -0.02em; }
+    .section-heading em { font-style: italic; font-weight: 400; color: var(--blue); }
+    .section-lead { font-size: 0.95rem; color: var(--muted); max-width: 520px; margin-top: 1rem; line-height: 1.9; }
+
+    /* REVEAL */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(22px);} to{opacity:1;transform:none;} }
+
+    /* HERO */
+    #home { min-height: 100vh; background: var(--navy); display: flex; align-items: center; position: relative; overflow: hidden; padding-top: 72px; }
+    #home::before { content:''; position:absolute; inset:0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px); background-size:50px 50px; }
+    .hero-circle { position:absolute; right:-180px; top:50%; transform:translateY(-50%); width:680px; height:680px; border:1.5px solid rgba(255,255,255,0.06); border-radius:50%; }
+    .hero-circle::after { content:''; position:absolute; inset:60px; border:1.5px solid rgba(255,255,255,0.04); border-radius:50%; }
+    .hero-glow { position:absolute; right:10%; top:50%; transform:translateY(-50%); width:400px; height:400px; background:radial-gradient(circle,rgba(26,95,168,0.3) 0%,transparent 70%); border-radius:50%; filter:blur(40px); }
+    .hero-inner { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:5rem 2.5rem; display:grid; grid-template-columns:1fr 420px; gap:5rem; align-items:center; }
+    .hero-tag { display:inline-flex; align-items:center; gap:0.5rem; font-size:0.68rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold-lt); margin-bottom:1.5rem; opacity:0; animation:fadeUp 0.7s 0.2s forwards; }
+    .hero-tag-dot { width:6px; height:6px; background:var(--gold); border-radius:50%; }
+    .hero-title { font-family:'Playfair Display',serif; font-size:clamp(2.6rem,5vw,4rem); font-weight:700; line-height:1.15; color:var(--white); letter-spacing:-0.02em; opacity:0; animation:fadeUp 0.8s 0.35s forwards; }
+    .hero-title em { font-style:italic; font-weight:400; color:var(--blue-lt); }
+    .hero-desc { margin-top:1.5rem; font-size:0.95rem; color:rgba(255,255,255,0.55); line-height:1.9; max-width:500px; opacity:0; animation:fadeUp 0.8s 0.5s forwards; }
+    .hero-actions { margin-top:2.5rem; display:flex; gap:1rem; flex-wrap:wrap; opacity:0; animation:fadeUp 0.8s 0.65s forwards; }
+    .btn-primary { background:var(--blue); color:var(--white); padding:0.8rem 1.8rem; border-radius:4px; border:none; font-family:'Mulish',sans-serif; font-size:0.82rem; font-weight:600; letter-spacing:0.05em; text-decoration:none; display:inline-block; transition:background 0.2s,transform 0.15s; cursor:pointer; }
+    .btn-primary:hover { background:var(--blue-lt); transform:translateY(-2px); }
+    .btn-outline { background:transparent; color:rgba(255,255,255,0.7); padding:0.8rem 1.8rem; border-radius:4px; border:1px solid rgba(255,255,255,0.2); font-family:'Mulish',sans-serif; font-size:0.82rem; font-weight:500; letter-spacing:0.05em; text-decoration:none; display:inline-block; transition:border-color 0.2s,color 0.2s,transform 0.15s; }
+    .btn-outline:hover { border-color:rgba(255,255,255,0.5); color:var(--white); transform:translateY(-2px); }
+    .hero-card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:2rem; backdrop-filter:blur(8px); opacity:0; animation:fadeUp 0.9s 0.75s forwards; }
+    .hero-card-title { font-size:0.65rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold-lt); margin-bottom:1.2rem; }
+    .hero-stat-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem; }
+    .hero-stat { background:rgba(255,255,255,0.05); border-radius:6px; padding:1rem; }
+    .hero-stat-num { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:700; color:var(--white); line-height:1; }
+    .hero-stat-label { font-size:0.68rem; color:rgba(255,255,255,0.4); letter-spacing:0.08em; margin-top:0.3rem; }
+    .hero-domains { display:flex; flex-wrap:wrap; gap:0.5rem; }
+    .domain-pill { font-size:0.68rem; font-weight:500; padding:0.3rem 0.75rem; border-radius:20px; background:rgba(26,95,168,0.3); color:rgba(255,255,255,0.75); border:1px solid rgba(26,95,168,0.4); }
+
+    /* TRUST BAR */
+    .trust-bar { background:var(--off); border-bottom:1px solid var(--border); padding:1.8rem 0; }
+    .trust-bar-inner { max-width:1200px; margin:0 auto; padding:0 2.5rem; display:flex; align-items:center; gap:3rem; flex-wrap:wrap; }
+    .trust-label { font-size:0.65rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+    .trust-logos { display:flex; align-items:center; gap:2.5rem; flex-wrap:wrap; }
+    .trust-logo { font-family:'Playfair Display',serif; font-size:0.88rem; font-weight:700; color:var(--border); letter-spacing:0.06em; text-transform:uppercase; user-select:none; transition:color 0.2s; }
+    .trust-logo:hover { color:var(--muted); }
+
+    /* ABOUT */
+    #about { background:var(--white); }
+    .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center; }
+    .about-img-main { background:var(--navy); aspect-ratio:4/3; border-radius:6px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }
+    .blueprint { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.05) 1px,transparent 1px); background-size:30px 30px; }
+    .bp-center { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
+    .bp-icon { width:80px; height:80px; border:2px solid rgba(255,255,255,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .bp-icon svg { width:36px; height:36px; }
+    .bp-text { font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:rgba(255,255,255,0.3); letter-spacing:0.1em; }
+    .about-badge { position:absolute; bottom:-20px; right:-20px; background:var(--gold); color:var(--navy); padding:1.2rem 1.5rem; border-radius:6px; text-align:center; box-shadow:0 8px 32px rgba(196,146,42,0.3); }
+    .about-badge-num { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; line-height:1; }
+    .about-badge-label { font-size:0.65rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-top:0.2rem; }
+    .about-img { position:relative; }
+    .about-content p { font-size:0.9rem; color:var(--muted); line-height:1.9; margin-bottom:1rem; }
+    .about-content p strong { color:var(--navy); font-weight:600; }
+    .about-values { margin-top:2rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .value-item { display:flex; align-items:flex-start; gap:0.75rem; padding:1rem; background:var(--off); border-radius:6px; border-left:3px solid var(--blue); }
+    .value-icon { width:28px; height:28px; flex-shrink:0; background:var(--sky); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; }
+    .value-text strong { display:block; font-size:0.8rem; font-weight:600; color:var(--navy); margin-bottom:0.15rem; }
+    .value-text span { font-size:0.73rem; color:var(--muted); }
+
+    /* EXPERTISE */
+    #expertise { background:var(--off); border-top:1px solid var(--border); }
+    .expertise-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:3rem; flex-wrap:wrap; gap:1.5rem; }
+    .expertise-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+    .expertise-card { background:var(--white); border:1px solid var(--border); border-radius:8px; padding:2rem; transition:box-shadow 0.25s,transform 0.2s,border-color 0.25s; }
+    .expertise-card:hover { box-shadow:0 12px 40px rgba(13,27,46,0.1); transform:translateY(-4px); border-color:var(--blue); }
+    .expertise-icon-wrap { width:50px; height:50px; background:var(--sky); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:1.3rem; }
+    .expertise-num { font-family:'JetBrains Mono',monospace; font-size:0.62rem; color:var(--blue); letter-spacing:0.15em; margin-bottom:0.5rem; }
+    .expertise-title { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--navy); margin-bottom:0.7rem; }
+    .expertise-desc { font-size:0.82rem; color:var(--muted); line-height:1.85; }
+    .expertise-tags { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:1.2rem; }
+    .etag { font-size:0.63rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:0.25rem 0.6rem; background:var(--sky); color:var(--blue); border-radius:3px; }
+
+    /* SERVICES */
+    #services { background:var(--white); }
+    .services-layout { display:grid; grid-template-columns:380px 1fr; gap:6rem; align-items:start; }
+    .services-sticky { position:sticky; top:100px; }
+    .service-accordion { border-top:1px solid var(--border); }
+    .service-item { border-bottom:1px solid var(--border); cursor:pointer; }
+    .service-header { display:flex; align-items:center; gap:1.2rem; padding:1.4rem 0; }
+    .service-header:hover .service-name { color:var(--blue); }
+    .service-index { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--muted); width:2rem; flex-shrink:0; }
+    .service-name { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:600; color:var(--navy); flex:1; transition:color 0.2s; }
+    .service-chevron { font-size:0.8rem; color:var(--muted); transition:transform 0.25s; }
+    .service-item.open .service-chevron { transform:rotate(180deg); }
+    .service-body { display:none; padding:0 0 1.4rem 3.2rem; }
+    .service-item.open .service-body { display:block; }
+    .service-body p { font-size:0.84rem; color:var(--muted); line-height:1.85; }
+    .service-body ul { margin-top:0.8rem; list-style:none; display:flex; flex-direction:column; gap:0.4rem; }
+    .service-body ul li { font-size:0.8rem; color:var(--muted); padding-left:1rem; position:relative; }
+    .service-body ul li::before { content:'→'; position:absolute; left:0; color:var(--blue); font-size:0.75rem; }
+
+    /* TEAM */
+    #team { background:var(--navy); }
+    #team .section-heading { color:var(--white); }
+    #team .section-lead { color:rgba(255,255,255,0.45); }
+    #team .eyebrow { color:var(--gold-lt); }
+    #team .eyebrow::before { background:var(--gold); }
+    .team-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; margin-top:3rem; }
+    .team-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:2rem; transition:background 0.2s,border-color 0.2s; }
+    .team-card:hover { background:rgba(255,255,255,0.07); border-color:rgba(26,95,168,0.5); }
+    .team-avatar { width:60px; height:60px; border-radius:50%; background:var(--navy-lt); border:2px solid var(--blue); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--blue-lt); margin-bottom:1.2rem; }
+    .team-name { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--white); }
+    .team-role { font-size:0.68rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold-lt); margin-top:0.25rem; }
+    .team-divider { width:28px; height:2px; background:var(--blue); margin:0.85rem 0; }
+    .team-bio { font-size:0.78rem; color:rgba(255,255,255,0.4); line-height:1.8; }
+
+    /* LOCATION */
+    #location { background:var(--off); border-top:1px solid var(--border); }
+    .location-grid { display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; }
+    .map-container { background:var(--navy); border-radius:8px; overflow:hidden; position:relative; aspect-ratio:4/3; }
+    .map-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.05) 1px,transparent 1px); background-size:40px 40px; }
+    .map-marker { position:absolute; top:45%; left:48%; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; }
+    .marker-pulse { width:16px; height:16px; background:var(--blue-lt); border-radius:50%; box-shadow:0 0 0 6px rgba(43,127,212,0.2); animation:mapPulse 2s infinite; }
+    @keyframes mapPulse { 0%,100%{box-shadow:0 0 0 6px rgba(43,127,212,0.2);} 50%{box-shadow:0 0 0 14px rgba(43,127,212,0.06);} }
+    .marker-stem { width:2px; height:24px; background:var(--blue-lt); }
+    .marker-tag { background:var(--white); color:var(--navy); font-size:0.65rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:0.3rem 0.7rem; border-radius:3px; white-space:nowrap; box-shadow:0 4px 16px rgba(0,0,0,0.3); }
+    .map-credits { position:absolute; bottom:1rem; right:1rem; font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:rgba(255,255,255,0.2); }
+    .location-details h3 { font-family:'Playfair Display',serif; font-size:1.7rem; font-weight:700; color:var(--navy); margin-bottom:2rem; line-height:1.2; }
+    .loc-item { display:flex; gap:1rem; margin-bottom:1.5rem; }
+    .loc-icon { width:40px; height:40px; flex-shrink:0; background:var(--sky); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+    .loc-label { font-size:0.65rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--blue); margin-bottom:0.2rem; }
+    .loc-value { font-size:0.85rem; color:var(--muted); line-height:1.6; }
+    .loc-value strong { color:var(--navy); }
+
+    /* CONTACT */
+    #contact { background:var(--white); border-top:1px solid var(--border); }
+    .contact-layout { display:grid; grid-template-columns:420px 1fr; gap:6rem; align-items:start; }
+    .contact-sidebar h3 { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; color:var(--navy); line-height:1.2; margin-bottom:1rem; }
+    .contact-sidebar p { font-size:0.85rem; color:var(--muted); line-height:1.9; margin-bottom:2rem; }
+    .contact-channel { display:flex; align-items:center; gap:1rem; padding:1rem 1.2rem; border:1px solid var(--border); border-radius:6px; margin-bottom:0.75rem; transition:border-color 0.2s,box-shadow 0.2s; text-decoration:none; }
+    .contact-channel:hover { border-color:var(--blue); box-shadow:0 4px 16px rgba(26,95,168,0.1); }
+    .cc-icon { width:38px; height:38px; flex-shrink:0; background:var(--sky); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+    .cc-label { font-size:0.62rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); display:block; }
+    .cc-value { font-size:0.84rem; color:var(--navy); font-weight:500; }
+    .contact-form { background:var(--off); border:1px solid var(--border); border-radius:8px; padding:2.5rem; }
+    .cf-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--navy); margin-bottom:1.8rem; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-group { display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1rem; }
+    .form-group label { font-size:0.65rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+    .form-group input, .form-group textarea, .form-group select { background:var(--white); border:1px solid var(--border); color:var(--text); padding:0.7rem 1rem; font-family:'Mulish',sans-serif; font-size:0.85rem; border-radius:4px; outline:none; transition:border-color 0.2s,box-shadow 0.2s; resize:vertical; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(26,95,168,0.1); }
+    .form-group select option { background:var(--white); }
+    .form-submit { background:var(--navy); color:var(--white); border:none; padding:0.85rem 2rem; border-radius:4px; cursor:pointer; font-family:'Mulish',sans-serif; font-size:0.82rem; font-weight:600; letter-spacing:0.06em; transition:background 0.2s,transform 0.15s; }
+    .form-submit:hover { background:var(--blue); transform:translateY(-1px); }
+    .form-note { font-size:0.72rem; color:var(--muted); margin-top:0.8rem; }
+
+    /* FOOTER */
+    footer { background:var(--navy); border-top:1px solid rgba(255,255,255,0.07); }
+    .footer-main { max-width:1200px; margin:0 auto; padding:4rem 2.5rem 3rem; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:4rem; }
+    .footer-tagline { font-size:0.8rem; color:rgba(255,255,255,0.35); line-height:1.8; margin-top:0.8rem; max-width:260px; }
+    .footer-col h4 { font-size:0.65rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.35); margin-bottom:1.2rem; }
+    .footer-col ul { list-style:none; display:flex; flex-direction:column; gap:0.6rem; }
+    .footer-col ul a { font-size:0.82rem; color:rgba(255,255,255,0.45); text-decoration:none; transition:color 0.2s; }
+    .footer-col ul a:hover { color:var(--white); }
+    .footer-bottom { max-width:1200px; margin:0 auto; padding:1.2rem 2.5rem; border-top:1px solid rgba(255,255,255,0.07); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+    .footer-copy { font-size:0.72rem; color:rgba(255,255,255,0.25); }
+    .footer-bottom-links { display:flex; gap:1.5rem; list-style:none; }
+    .footer-bottom-links a { font-size:0.72rem; color:rgba(255,255,255,0.25); text-decoration:none; transition:color 0.2s; }
+    .footer-bottom-links a:hover { color:rgba(255,255,255,0.6); }
+
+    /* RESPONSIVE */
+    @media(max-width:1024px){
+      .hero-inner { grid-template-columns:1fr; }
+      .hero-card { display:none; }
+      .about-grid, .location-grid, .contact-layout { grid-template-columns:1fr; gap:3rem; }
+      .services-layout { grid-template-columns:1fr; gap:2rem; }
+      .services-sticky { position:static; }
+      .expertise-grid { grid-template-columns:1fr 1fr; }
+      .team-grid { grid-template-columns:1fr 1fr; }
+      .footer-main { grid-template-columns:1fr 1fr; }
+    }
+    @media(max-width:620px){
+      .container { padding:0 1.5rem; }
+      .nav-inner { padding:0 1.5rem; }
+      .expertise-grid, .team-grid { grid-template-columns:1fr; }
+      .about-values { grid-template-columns:1fr; }
+      .form-row { grid-template-columns:1fr; }
+      .footer-main { grid-template-columns:1fr; gap:2rem; }
+      .footer-bottom { flex-direction:column; text-align:center; }
+      .hero-inner { padding:3rem 1.5rem 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="#home">
+      <div class="nav-brand-mark">
+        <svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="8" fill="#2b7fd4"/><rect x="12" y="2" width="8" height="8" fill="rgba(255,255,255,0.3)"/><rect x="2" y="12" width="8" height="8" fill="rgba(255,255,255,0.15)"/><rect x="12" y="12" width="8" height="8" fill="#2b7fd4" opacity="0.5"/></svg>
+      </div>
+      <div class="nav-brand-text">
+        <span class="nav-brand-name">CS<span>Re</span>D</span>
+        <span class="nav-brand-sub">Center for Software R&amp;D</span>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#expertise">Expertise</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#team">Team</a></li>
+      <li><a href="#location">Location</a></li>
+      <li><a href="#contact" class="nav-cta">Contact Us</a></li>
+    </ul>
+    <button class="nav-toggle" onclick="toggleMenu()">&#9776;</button>
+  </div>
+</nav>
+<div id="mobile-menu">
+  <a href="#home" onclick="closeMenu()">Home</a>
+  <a href="#about" onclick="closeMenu()">About</a>
+  <a href="#expertise" onclick="closeMenu()">Expertise</a>
+  <a href="#services" onclick="closeMenu()">Services</a>
+  <a href="#team" onclick="closeMenu()">Team</a>
+  <a href="#location" onclick="closeMenu()">Location</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="home">
+  <div class="hero-circle"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag"><div class="hero-tag-dot"></div>Center for Software Research &amp; Development</div>
+      <h1 class="hero-title">Advancing software<br>through rigorous<br><em>research.</em></h1>
+      <p class="hero-desc">CSReD is an independent research center dedicated to bridging the frontier between academic computer science and real-world software engineering — producing work that matters.</p>
+      <div class="hero-actions">
+        <a href="#expertise" class="btn-primary">Our Research Areas</a>
+        <a href="#contact" class="btn-outline">Partner with Us</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-title">// At a glance</div>
+      <div class="hero-stat-row">
+        <div class="hero-stat"><div class="hero-stat-num">50+</div><div class="hero-stat-label">Publications</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">12+</div><div class="hero-stat-label">Industry Partners</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">30+</div><div class="hero-stat-label">Projects Delivered</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">8+</div><div class="hero-stat-label">Years Active</div></div>
+      </div>
+      <div class="hero-domains">
+        <span class="domain-pill">AI &amp; ML</span>
+        <span class="domain-pill">Software Systems</span>
+        <span class="domain-pill">Data Engineering</span>
+        <span class="domain-pill">Cybersecurity</span>
+        <span class="domain-pill">Cloud Computing</span>
+        <span class="domain-pill">HCI</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-bar-inner">
+    <span class="trust-label">Trusted by</span>
+    <div class="trust-logos">
+      <span class="trust-logo">TechCorp</span>
+      <span class="trust-logo">Innovatech</span>
+      <span class="trust-logo">DataSystems</span>
+      <span class="trust-logo">CloudNova</span>
+      <span class="trust-logo">Nexum Labs</span>
+      <span class="trust-logo">SecureBase</span>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about" class="section-pad">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-img reveal">
+        <div class="about-img-main">
+          <div class="blueprint"></div>
+          <div class="bp-center">
+            <div class="bp-icon">
+              <svg viewBox="0 0 36 36" fill="none"><rect x="4" y="4" width="12" height="12" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><rect x="20" y="4" width="12" height="12" stroke="#2b7fd4" stroke-width="1.5"/><rect x="4" y="20" width="12" height="12" stroke="#2b7fd4" stroke-width="1.5" stroke-dasharray="3 2"/><rect x="20" y="20" width="12" height="12" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/><circle cx="18" cy="18" r="5" stroke="rgba(196,146,42,0.6)" stroke-width="1.5"/></svg>
+            </div>
+            <div class="bp-text">csred-core-architecture</div>
+          </div>
+        </div>
+        <div class="about-badge">
+          <div class="about-badge-num">2016</div>
+          <div class="about-badge-label">Founded</div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div style="margin-bottom:1.5rem">
+          <div class="eyebrow">About CSReD</div>
+          <h2 class="section-heading">A center built for<br><em>meaningful</em> research.</h2>
+        </div>
+        <div class="about-content">
+          <p>The <strong>Center for Software Research and Development (CSReD)</strong> was established to create a collaborative environment where researchers, engineers, and industry practitioners come together to tackle foundational and applied problems in software and computing.</p>
+          <p>We operate at the intersection of <strong>academic rigor</strong> and <strong>industry relevance</strong> — producing publications, open-source tools, prototypes, and consulting engagements that push the state of the art while delivering tangible value to our partners.</p>
+          <p>From foundational algorithms to enterprise-scale systems architecture, our work spans the full spectrum of software research.</p>
+        </div>
+        <div class="about-values">
+          <div class="value-item"><div class="value-icon">&#128300;</div><div class="value-text"><strong>Rigorous Research</strong><span>Evidence-based, peer-reviewed methodology</span></div></div>
+          <div class="value-item"><div class="value-icon">&#129309;</div><div class="value-text"><strong>Industry Partnerships</strong><span>Close collaboration with real-world stakeholders</span></div></div>
+          <div class="value-item"><div class="value-icon">&#127758;</div><div class="value-text"><strong>Open Science</strong><span>Commitment to open-source and open data</span></div></div>
+          <div class="value-item"><div class="value-icon">&#9881;&#65039;</div><div class="value-text"><strong>Applied Impact</strong><span>Research that ships to production</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERTISE -->
+<section id="expertise" class="section-pad">
+  <div class="container">
+    <div class="expertise-header reveal">
+      <div>
+        <div class="eyebrow">Areas of Expertise</div>
+        <h2 class="section-heading">Where we <em>specialize</em></h2>
+      </div>
+      <p class="section-lead" style="max-width:360px">Six core research domains where CSReD has built deep expertise and a track record of impact.</p>
+    </div>
+    <div class="expertise-grid">
+      <div class="expertise-card reveal">
+        <div class="expertise-icon-wrap">&#129302;</div>
+        <div class="expertise-num">01 / AI &amp; Machine Learning</div>
+        <div class="expertise-title">Artificial Intelligence Research</div>
+        <div class="expertise-desc">Designing novel machine learning architectures, training methodologies, and evaluation frameworks. Our AI research spans NLP, computer vision, reinforcement learning, and foundation model alignment.</div>
+        <div class="expertise-tags"><span class="etag">NLP</span><span class="etag">CV</span><span class="etag">RL</span><span class="etag">LLMs</span></div>
+      </div>
+      <div class="expertise-card reveal">
+        <div class="expertise-icon-wrap">&#127959;&#65039;</div>
+        <div class="expertise-num">02 / Software Systems</div>
+        <div class="expertise-title">Systems Engineering &amp; Architecture</div>
+        <div class="expertise-desc">Researching and building distributed systems, compilers, operating systems components, and high-performance computing environments. We focus on correctness, scalability, and fault tolerance.</div>
+        <div class="expertise-tags"><span class="etag">Distributed</span><span class="etag">Compilers</span><span class="etag">HPC</span></div>
+      </div>
+      <div class="expertise-card reveal">
+        <div class="expertise-icon-wrap">&#128202;</div>
+        <div class="expertise-num">03 / Data Engineering</div>
+        <div class="expertise-title">Data Platforms &amp; Analytics</div>
+        <div class="expertise-desc">Building and studying large-scale data pipeline architectures, real-time stream processing systems, and analytics platforms. We develop methods for reliable, scalable data infrastructure.</div>
+        <div class="expertise-tags"><span class="etag">Pipelines</span><span class="etag">Streaming</span><span class="etag">Warehousing</span></div>
+      </div>
+      <div class="expertise-card reveal">
+        <div class="expertise-icon-wrap">&#128274;</div>
+        <div class="expertise-num">04 / Cybersecurity</div>
+        <div class="expertise-title">Security Research &amp; Privacy</div>
+        <div class="expertise-desc">Advancing the science of software security, vulnerability analysis, formal verification, and privacy-preserving computation including differential privacy and federated learning.</div>
+        <div class="expertise-tags"><span class="etag">Formal Verification</span><span class="etag">Privacy</span><span class="etag">Threat Modeling</span></div>
+      </div>
+      <div class="expertise-card reveal">
+        <div class="expertise-icon-wrap">&#9729;&#65039;</div>
+        <div class="expertise-num">05 / Cloud Computing</div>
+        <div class="expertise-title">Cloud-Native Systems</div>
+        <div class="expertise-desc">Researching serverless computing, cloud cost optimization, multi-cloud orchestration, and the operational science behind modern DevOps and platform engineering practices.</div>
+        <div class="expertise-tags"><span class="etag">Serverless</span><span class="etag">Orchestration</span><span class="etag">DevOps</span></div>
+      </div>
+      <div class="expertise-card reveal">
+        <div class="expertise-icon-wrap">&#128421;&#65039;</div>
+        <div class="expertise-num">06 / Human-Computer Interaction</div>
+        <div class="expertise-title">HCI &amp; Software Usability</div>
+        <div class="expertise-desc">Studying how humans interact with complex software systems. Our HCI group publishes on developer experience, accessible computing, intelligent interfaces, and evaluation methodology.</div>
+        <div class="expertise-tags"><span class="etag">UX Research</span><span class="etag">Accessibility</span><span class="etag">Dev Tools</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="section-pad">
+  <div class="container">
+    <div class="services-layout">
+      <div class="services-sticky reveal">
+        <div class="eyebrow">What We Offer</div>
+        <h2 class="section-heading">Our<br><em>services</em></h2>
+        <p class="section-lead">Beyond publishing research, CSReD offers a range of engagement models for organizations that want to leverage our expertise.</p>
+        <div style="margin-top:2rem"><a href="#contact" class="btn-primary">Discuss a Project</a></div>
+      </div>
+      <div class="service-accordion reveal">
+        <div class="service-item open">
+          <div class="service-header" onclick="toggleService(this)">
+            <span class="service-index">01</span><span class="service-name">Applied Research &amp; R&amp;D</span><span class="service-chevron">&#9650;</span>
+          </div>
+          <div class="service-body">
+            <p>We conduct sponsored research projects aligned with our core expertise areas, producing peer-reviewed outputs, prototypes, and intellectual property co-owned with partners.</p>
+            <ul><li>Problem scoping and feasibility analysis</li><li>Experimental design and execution</li><li>Technical reports and publication support</li><li>Prototype development and handoff</li></ul>
+          </div>
+        </div>
+        <div class="service-item">
+          <div class="service-header" onclick="toggleService(this)">
+            <span class="service-index">02</span><span class="service-name">Technical Consulting</span><span class="service-chevron">&#9660;</span>
+          </div>
+          <div class="service-body">
+            <p>Our researchers provide expert advisory services to engineering teams, guiding architectural decisions, technology selection, and performance optimization with an evidence-based approach.</p>
+            <ul><li>Architecture review and design guidance</li><li>Technology strategy and roadmapping</li><li>Code quality and process audits</li></ul>
+          </div>
+        </div>
+        <div class="service-item">
+          <div class="service-header" onclick="toggleService(this)">
+            <span class="service-index">03</span><span class="service-name">Software Development</span><span class="service-chevron">&#9660;</span>
+          </div>
+          <div class="service-body">
+            <p>We build production-grade software systems and tools, often arising from our own research output, including AI-powered applications, data platforms, and developer tooling.</p>
+            <ul><li>Custom software design and implementation</li><li>AI/ML model productionization</li><li>Open-source tool maintenance and support</li></ul>
+          </div>
+        </div>
+        <div class="service-item">
+          <div class="service-header" onclick="toggleService(this)">
+            <span class="service-index">04</span><span class="service-name">Training &amp; Workshops</span><span class="service-chevron">&#9660;</span>
+          </div>
+          <div class="service-body">
+            <p>We deliver intensive technical workshops and training programs for engineering teams, covering advanced topics in software architecture, AI systems, security, and data engineering.</p>
+            <ul><li>On-site and remote workshop delivery</li><li>Custom curriculum development</li><li>Hands-on labs and guided exercises</li></ul>
+          </div>
+        </div>
+        <div class="service-item">
+          <div class="service-header" onclick="toggleService(this)">
+            <span class="service-index">05</span><span class="service-name">Security Assessment</span><span class="service-chevron">&#9660;</span>
+          </div>
+          <div class="service-body">
+            <p>Leveraging our cybersecurity research group, we offer comprehensive security assessments covering code, architecture, and operational practices — with formal reports and remediation guidance.</p>
+            <ul><li>Penetration testing and vulnerability analysis</li><li>Formal threat modeling</li><li>Privacy compliance review</li></ul>
+          </div>
+        </div>
+        <div class="service-item">
+          <div class="service-header" onclick="toggleService(this)">
+            <span class="service-index">06</span><span class="service-name">Academic Partnerships</span><span class="service-chevron">&#9660;</span>
+          </div>
+          <div class="service-body">
+            <p>We collaborate with universities and research institutions on joint projects, grant applications, student supervision, and cross-institutional publication initiatives.</p>
+            <ul><li>Joint grant writing and submission</li><li>Co-supervision of graduate students</li><li>Shared lab and dataset resources</li></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team" class="section-pad">
+  <div class="container">
+    <div class="reveal">
+      <div class="eyebrow">Our People</div>
+      <h2 class="section-heading">The research <em>team</em></h2>
+      <p class="section-lead">World-class researchers and engineers committed to advancing the field.</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal">
+        <div class="team-avatar">AK</div>
+        <div class="team-name">Dr. Amir Khan</div>
+        <div class="team-role">Director &amp; Co-Founder</div>
+        <div class="team-divider"></div>
+        <div class="team-bio">PhD in Computer Science from MIT. Former research scientist at IBM Research. Leads overall research vision and strategic partnerships.</div>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">SR</div>
+        <div class="team-name">Dr. Sofia Reyes</div>
+        <div class="team-role">CTO &amp; Co-Founder</div>
+        <div class="team-divider"></div>
+        <div class="team-bio">Systems researcher specializing in distributed computing. Published in OSDI and SOSP. Oversees engineering and infrastructure.</div>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">JL</div>
+        <div class="team-name">Dr. James Liu</div>
+        <div class="team-role">Head of AI Research</div>
+        <div class="team-divider"></div>
+        <div class="team-bio">Expert in large language models and multimodal AI. 20+ peer-reviewed publications. Previously at Google Brain and Stanford AI Lab.</div>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">NP</div>
+        <div class="team-name">Nina Parekh</div>
+        <div class="team-role">Principal Data Engineer</div>
+        <div class="team-divider"></div>
+        <div class="team-bio">Specializes in streaming data platforms and query optimization. Led data infrastructure at two unicorn startups before joining CSReD.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION -->
+<section id="location" class="section-pad">
+  <div class="container">
+    <div class="location-grid">
+      <div class="reveal">
+        <div class="map-container">
+          <div class="map-grid"></div>
+          <div class="map-marker">
+            <div class="marker-pulse"></div>
+            <div class="marker-stem"></div>
+            <div class="marker-tag">CSReD Headquarters</div>
+          </div>
+          <div class="map-credits">csred.io / location</div>
+        </div>
+      </div>
+      <div class="location-details reveal">
+        <div class="eyebrow">Our Location</div>
+        <h3>Come visit<br>our center.</h3>
+        <div class="loc-item">
+          <div class="loc-icon">&#128205;</div>
+          <div><div class="loc-label">Headquarters</div><div class="loc-value"><strong>123 Research Boulevard, Suite 500</strong><br>San Francisco, CA 94107, United States</div></div>
+        </div>
+        <div class="loc-item">
+          <div class="loc-icon">&#127963;&#65039;</div>
+          <div><div class="loc-label">Satellite Office</div><div class="loc-value"><strong>456 University Ave, Lab 210</strong><br>Berkeley, CA 94710, United States</div></div>
+        </div>
+        <div class="loc-item">
+          <div class="loc-icon">&#128336;</div>
+          <div><div class="loc-label">Office Hours</div><div class="loc-value">Monday – Friday &nbsp;|&nbsp; 9:00 AM – 6:00 PM PST<br>By appointment on weekends.</div></div>
+        </div>
+        <div class="loc-item">
+          <div class="loc-icon">&#127758;</div>
+          <div><div class="loc-label">Remote Collaboration</div><div class="loc-value">We work with partners and collaborators worldwide. Our team spans North America, Europe, and Asia-Pacific.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section-pad">
+  <div class="container">
+    <div style="margin-bottom:3rem" class="reveal">
+      <div class="eyebrow">Get In Touch</div>
+      <h2 class="section-heading">Let's start a <em>conversation.</em></h2>
+    </div>
+    <div class="contact-layout">
+      <div class="reveal">
+        <div class="contact-sidebar">
+          <h3>Work with CSReD.</h3>
+          <p>Whether you're interested in a research partnership, a consulting engagement, or simply want to learn more about our work — we welcome every inquiry.</p>
+        </div>
+        <a href="mailto:info@csred.io" class="contact-channel"><div class="cc-icon">&#9993;&#65039;</div><div><span class="cc-label">Email</span><span class="cc-value">info@csred.io</span></div></a>
+        <a href="tel:+14155550144" class="contact-channel"><div class="cc-icon">&#128222;</div><div><span class="cc-label">Phone</span><span class="cc-value">+1 (415) 555-0144</span></div></a>
+        <a href="#" class="contact-channel"><div class="cc-icon">&#128188;</div><div><span class="cc-label">LinkedIn</span><span class="cc-value">linkedin.com/company/csred</span></div></a>
+        <a href="#" class="contact-channel"><div class="cc-icon">&#128025;</div><div><span class="cc-label">GitHub</span><span class="cc-value">github.com/csred-io</span></div></a>
+      </div>
+      <div class="contact-form reveal">
+        <div class="cf-title">Send us a message</div>
+        <form onsubmit="handleSubmit(event)">
+          <div class="form-row">
+            <div class="form-group"><label>First Name *</label><input type="text" placeholder="Jane" required></div>
+            <div class="form-group"><label>Last Name *</label><input type="text" placeholder="Smith" required></div>
+          </div>
+          <div class="form-group"><label>Email Address *</label><input type="email" placeholder="jane.smith@organization.com" required></div>
+          <div class="form-group"><label>Organization</label><input type="text" placeholder="Your company or institution"></div>
+          <div class="form-group">
+            <label>Subject / Area of Interest</label>
+            <select>
+              <option value="">Select a topic...</option>
+              <option>Research Partnership</option>
+              <option>Technical Consulting</option>
+              <option>Software Development</option>
+              <option>Security Assessment</option>
+              <option>Training &amp; Workshops</option>
+              <option>Academic Collaboration</option>
+              <option>Career &amp; Internships</option>
+              <option>General Inquiry</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Message *</label><textarea rows="5" placeholder="Describe your project, question, or how we can help..." required></textarea></div>
+          <button type="submit" class="form-submit">Send Message &#8594;</button>
+          <p class="form-note">We typically respond within 1–2 business days. For urgent matters, please call us directly.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-main">
+    <div>
+      <a class="nav-brand" href="#home" style="display:inline-flex;margin-bottom:0.6rem">
+        <div class="nav-brand-mark"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="8" fill="#2b7fd4"/><rect x="12" y="2" width="8" height="8" fill="rgba(255,255,255,0.3)"/><rect x="2" y="12" width="8" height="8" fill="rgba(255,255,255,0.15)"/><rect x="12" y="12" width="8" height="8" fill="#2b7fd4" opacity="0.5"/></svg></div>
+        <div class="nav-brand-text">
+          <span class="nav-brand-name" style="color:#fff">CS<span>Re</span>D</span>
+          <span class="nav-brand-sub">Center for Software R&amp;D</span>
+        </div>
+      </a>
+      <p class="footer-tagline">Advancing the science and practice of software through rigorous research and applied engineering.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#expertise">Areas of Expertise</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#team">Our Team</a></li>
+        <li><a href="#location">Location</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Research</h4>
+      <ul>
+        <li><a href="#">Publications</a></li>
+        <li><a href="#">Open Source</a></li>
+        <li><a href="#">Datasets</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Seminars</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="#contact">Contact Us</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">GitHub</a></li>
+        <li><a href="#">Twitter / X</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&copy; 2024 CSReD &mdash; Center for Software Research and Development. All rights reserved.</span>
+    <ul class="footer-bottom-links">
+      <li><a href="#">Privacy Policy</a></li>
+      <li><a href="#">Terms of Use</a></li>
+      <li><a href="#">Accessibility</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu(){ document.getElementById('mobile-menu').classList.toggle('open'); }
+  function closeMenu(){ document.getElementById('mobile-menu').classList.remove('open'); }
+
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if(e.isIntersecting){ setTimeout(() => e.target.classList.add('visible'), i * 70); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => io.observe(el));
+
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.nav-links a:not(.nav-cta)');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    sections.forEach(s => { if(window.scrollY >= s.offsetTop - 100) cur = s.id; });
+    links.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + cur); });
+  });
+
+  function toggleService(header){
+    const item = header.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.service-item').forEach(s => {
+      s.classList.remove('open');
+      s.querySelector('.service-chevron').innerHTML = '&#9660;';
+    });
+    if(!isOpen){ item.classList.add('open'); header.querySelector('.service-chevron').innerHTML = '&#9650;'; }
+  }
+
+  function handleSubmit(e){
+    e.preventDefault();
+    const btn = e.target.querySelector('.form-submit');
+    btn.textContent = 'Message Sent!';
+    btn.style.background = '#1a7a3a';
+    setTimeout(() => { btn.textContent = 'Send Message \u2192'; btn.style.background = ''; e.target.reset(); }, 3500);
+  }
+</script>
+</body>
+</html>
